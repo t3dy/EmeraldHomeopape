@@ -240,6 +240,47 @@ body {
     font-family: var(--font-sans);
     font-size: 0.8rem;
 }
+/* Word annotation tooltips */
+.anno-word {
+    position: relative;
+    border-bottom: 1px dotted #d4a574;
+    cursor: pointer;
+}
+.anno-tip {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2c2418;
+    color: #f5f0e8;
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    white-space: nowrap;
+    max-width: 300px;
+    white-space: normal;
+    z-index: 50;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    font-family: var(--font-sans);
+    direction: ltr;
+    text-align: left;
+}
+.anno-tip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #2c2418;
+}
+.anno-word:hover .anno-tip {
+    display: block;
+}
+
 .translation-selector {
     display: inline-block;
     font-family: var(--font-sans);
@@ -664,7 +705,7 @@ def build_parallel_viewer(conn):
             verse_commentary = json.load(f)
 
     def annotate_text(verse_key, lang_key):
-        """Wrap words in spans with hover tooltips from word_annotations."""
+        """Wrap words in spans with CSS hover tooltips from word_annotations."""
         annotations = word_annotations.get(lang_key, {}).get(verse_key, [])
         if not annotations:
             return None  # No annotations for this verse
@@ -673,21 +714,26 @@ def build_parallel_viewer(conn):
             word = wa.get("word", "")
             trans = wa.get("translation", "")
             translit = wa.get("transliteration", "")
-            notes = wa.get("notes", "")
+            notes = wa.get("notes")
+            if notes is None or notes == "None":
+                notes = ""
 
-            # Build tooltip
-            tip_parts = []
+            # Build tooltip lines
+            tip_lines = []
             if translit:
-                tip_parts.append(translit)
+                tip_lines.append(f'<em>{translit}</em>')
             if trans:
-                tip_parts.append(trans)
+                tip_lines.append(trans)
             if notes:
-                tip_parts.append(f"[{notes}]")
-            tip = " — ".join(tip_parts) if tip_parts else ""
+                tip_lines.append(f'<span style="color:#d4a574">{notes}</span>')
+            tip_html = "<br>".join(tip_lines)
 
-            if tip:
-                css = "border-bottom:1px dotted #d4a574;cursor:help"
-                parts.append(f'<span style="{css}" title="{tip}">{word}</span>')
+            if tip_html:
+                # Use CSS tooltip class instead of title attribute
+                parts.append(
+                    f'<span class="anno-word">{word}'
+                    f'<span class="anno-tip">{tip_html}</span></span>'
+                )
             else:
                 parts.append(word)
         return " ".join(parts)

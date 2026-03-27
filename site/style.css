@@ -209,6 +209,47 @@ body {
     font-family: var(--font-sans);
     font-size: 0.8rem;
 }
+/* Word annotation tooltips */
+.anno-word {
+    position: relative;
+    border-bottom: 1px dotted #d4a574;
+    cursor: pointer;
+}
+.anno-tip {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2c2418;
+    color: #f5f0e8;
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    white-space: nowrap;
+    max-width: 300px;
+    white-space: normal;
+    z-index: 50;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    font-family: var(--font-sans);
+    direction: ltr;
+    text-align: left;
+}
+.anno-tip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #2c2418;
+}
+.anno-word:hover .anno-tip {
+    display: block;
+}
+
 .translation-selector {
     display: inline-block;
     font-family: var(--font-sans);
